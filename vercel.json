@@ -1,0 +1,11 @@
+{
+  "redirects": [
+    { "source": "/(.*)", "has": [{ "type": "host", "value": "www.axiomsdigital.com" }], "destination": "https://axiomsdigital.com/$1", "permanent": true },
+    { "source": "/(.*)", "has": [{ "type": "host", "value": "axiombyrusan.vercel.app" }], "destination": "https://axiomsdigital.com/$1", "permanent": true },
+    { "source": "/(.*)", "has": [{ "type": "host", "value": "axiomsdigital.vercel.app" }], "destination": "https://axiomsdigital.com/$1", "permanent": true }
+  ],
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api/$1" },
+    { "source": "/(.*)", "destination": "/" }
+  ]
+}

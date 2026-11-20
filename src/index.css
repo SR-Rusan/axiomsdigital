@@ -1,0 +1,104 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 0 0% 100%;
+  --foreground: 210 14% 17%;
+  --primary: 210 14% 17%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 0 0% 96%;
+  --secondary-foreground: 0 0% 9%;
+  --muted: 0 0% 96%;
+  /* Darkened from 55% to 42% lightness so small grey text passes WCAG AA (4.5:1) on white. */
+  --muted-foreground: 184 5% 42%;
+  --accent: 239 84% 67%;
+  --accent-foreground: 0 0% 100%;
+  --border: 0 0% 90%;
+  --ring: 239 84% 67%;
+  --radius: 0.5rem;
+
+  --font-display: 'Instrument Serif', serif;
+  --font-body: 'Inter', sans-serif;
+
+  --shadow-dashboard:
+    0 25px 80px -12px rgba(30, 32, 60, 0.08),
+    0 0 0 1px rgba(30, 32, 60, 0.06);
+
+  /* Height of the sticky header, so anchor links don't land under it. */
+  --header-h: 72px;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: var(--header-h);
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-body);
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background: hsl(var(--accent) / 0.2);
+    color: hsl(var(--foreground));
+  }
+
+  /* Instrument Serif ships one weight; stop browsers from faking a blurry bold. */
+  .font-display {
+    font-synthesis: none;
+    font-weight: 400;
+  }
+
+  h1, h2, h3 {
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  a, button, input, textarea, select {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  :focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+
+  input[type='range'] {
+    accent-color: hsl(var(--accent));
+  }
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
