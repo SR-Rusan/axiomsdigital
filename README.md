@@ -1,13 +1,17 @@
-# Axioms Digital: agency website
+# Axioms Digital
 
-Marketing site for **Axioms Digital** (Axiom by Rusan), an AI automation studio in Dhaka. Single-page, animated, with a working inquiry form.
+Source for **[axiomsdigital.com](https://axiomsdigital.com)**, the website of Axioms Digital, an AI automation studio that builds lead qualification, client onboarding and content systems for coaches and consultants.
 
-**Stack:** React 18 · TypeScript · Vite · Tailwind CSS · Framer Motion · Vercel serverless function (`api/inquiry.js`) → Google Apps Script
+## Stack
+- React + Vite + TypeScript, Tailwind CSS
+- Vercel hosting, with a serverless function (`api/inquiry.js`) for the contact form
+- Resend for inquiry email alerts, Google Sheets as the inquiry log
+- Strict security headers (CSP, HSTS, frame and referrer policy) in `vercel.json`
 
-## Run
+## Run locally
 ```bash
 npm install
-cp .env.example .env   # add your own values
 npm run dev
 ```
-`npm run build` produces a production build; `vercel.json` is set up for Vercel.
+
+Secrets live only in Vercel environment variables. See `.env.example` for the names.

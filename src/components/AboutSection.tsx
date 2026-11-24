@@ -49,8 +49,8 @@ export const AboutSection: React.FC = () => {
             <figure className="p-6 sm:p-7 rounded-2xl bg-secondary/40 border border-border/80 space-y-4">
               <div className="flex items-center gap-3">
                 <img
-                  src="/axioms-mark.png"
-                  alt=""
+                  src="/axioms-mark-sm.webp"
+                  alt="Axioms Digital logo mark"
                   width={302}
                   height={280}
                   className="h-10 w-10 object-contain rounded-lg bg-white p-1 border border-border shadow-2xs"
@@ -69,7 +69,7 @@ export const AboutSection: React.FC = () => {
                   “I build practical AI automations that connect the tools you already use, take repetitive work off your team, and keep running in the background. There are no account managers in between, just direct engineering and clean systems you can maintain.”
                 </p>
               </blockquote>
-              <figcaption className="text-xs text-muted-foreground">Founder, Axioms Digital</figcaption>
+              <figcaption className="text-xs text-muted-foreground"><span className="font-semibold text-foreground">Rusan</span>, founder of Axioms Digital. Automation engineer based in Dhaka, building AI workflows for coaches, consultants and small teams.</figcaption>
             </figure>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">

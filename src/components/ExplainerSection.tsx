@@ -71,7 +71,7 @@ export const ExplainerSection: React.FC = () => {
               <video
                 ref={videoRef}
                 src="/axioms-explainer.mp4"
-                poster="/axioms-explainer-poster.jpg"
+                poster="/axioms-explainer-poster.webp"
                 preload="none"
                 playsInline
                 controls={started}

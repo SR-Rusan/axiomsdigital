@@ -11,7 +11,7 @@ import {
   AlertCircle,
 } from 'lucide-react';
 
-const faqs = [
+export const faqs = [
   {
     q: 'Do we need an in-house developer or technical team?',
     a: 'No. Every automation is delivered ready to use. I build, test and check the whole set-up, then hand over short video walkthroughs and clear documentation so a non-technical team can run it with confidence.',
@@ -76,22 +76,6 @@ export const BookingSection: React.FC = () => {
       delivered = res.ok;
     } catch {
       delivered = false;
-    }
-
-    // Optional Google Apps Script backup. Its response can't be read (no-cors), so it only counts if the request goes out.
-    const webhookUrl = import.meta.env.VITE_LEADS_WEBHOOK_URL;
-    if (webhookUrl && webhookUrl.trim() !== '') {
-      try {
-        await fetch(webhookUrl, {
-          method: 'POST',
-          mode: 'no-cors',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify(payload),
-        });
-        delivered = true;
-      } catch {
-        // keep the result from the API call
-      }
     }
 
     setStatus(delivered ? 'sent' : 'error');

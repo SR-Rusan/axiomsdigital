@@ -1,17 +1,52 @@
 // Vercel serverless function: receives the discovery form and forwards it to
 // Google Sheets (if Google credentials are set) and to an email notification.
 
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const EMAIL_RE = /^[^\s@<>()",;:]+@[^\s@<>()",;:]+\.[a-zA-Z]{2,}$/;
 
-/** Stop visitor text that starts with = + - @ from running as a spreadsheet formula. */
-const safeCell = (value) => (/^[=+\-@]/.test(value) ? `'${value}` : value);
+// Only the real site may call this from a browser.
+const ALLOWED_ORIGINS = new Set(['https://axiomsdigital.com', 'https://www.axiomsdigital.com']);
 
-const clean = (value, max) => String(value ?? '').trim().slice(0, max);
+/** Stop visitor text that starts with = + - @ (or tab/CR tricks) from running as a spreadsheet formula. */
+const safeCell = (value) => (/^[=+\-@\t\r]/.test(value) ? `'${value}` : value);
+
+/** Trim, cut to length, and drop invisible control characters (keeps normal line breaks). */
+const clean = (value, max) =>
+  String(value ?? '')
+    .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F\u200B-\u200F\u2028\u2029\uFEFF]/g, '')
+    .trim()
+    .slice(0, max);
+
+/** One-line version for names, subjects and headers (no line breaks, no angle brackets). */
+const oneLine = (value) => value.replace(/[\r\n]+/g, ' ').replace(/[<>]/g, '');
+
+// Best-effort rate limit: per visitor IP and overall, kept in the function's memory
+// (Vercel reuses warm instances, so this stops bursts of spam; it is not a hard global limit).
+const PER_IP = { max: 5, windowMs: 10 * 60 * 1000 };
+const GLOBAL = { max: 60, windowMs: 60 * 60 * 1000 };
+const hits = new Map();
+let globalHits = [];
+function rateLimited(ip) {
+  const now = Date.now();
+  globalHits = globalHits.filter((t) => now - t < GLOBAL.windowMs);
+  const mine = (hits.get(ip) || []).filter((t) => now - t < PER_IP.windowMs);
+  if (mine.length >= PER_IP.max || globalHits.length >= GLOBAL.max) return true;
+  mine.push(now);
+  globalHits.push(now);
+  hits.set(ip, mine);
+  if (hits.size > 5000) hits.clear();
+  return false;
+}
 
 export default async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  const origin = req.headers.origin;
+  if (origin && ALLOWED_ORIGINS.has(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Vary', 'Origin');
+  }
   res.setHeader('Access-Control-Allow-Methods', 'POST,OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Accept');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Cache-Control', 'no-store');
+  res.setHeader('X-Content-Type-Options', 'nosniff');
 
   if (req.method === 'OPTIONS') {
     return res.status(204).end();
@@ -21,11 +56,28 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
+  // Browsers on other websites may not post here.
+  if (origin && !ALLOWED_ORIGINS.has(origin)) {
+    return res.status(403).json({ error: 'Not allowed' });
+  }
+
+  if (!String(req.headers['content-type'] || '').toLowerCase().startsWith('application/json')) {
+    return res.status(415).json({ error: 'Send JSON' });
+  }
+
+  const ip = String(req.headers['x-forwarded-for'] || '').split(',')[0].trim() || req.socket?.remoteAddress || 'unknown';
+  if (rateLimited(ip)) {
+    return res.status(429).json({ error: 'Too many messages. Please try again in a few minutes.' });
+  }
+
   let body;
   try {
     body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body || {};
   } catch {
     return res.status(400).json({ error: 'Invalid JSON' });
+  }
+  if (!body || typeof body !== 'object' || Array.isArray(body)) {
+    return res.status(400).json({ error: 'Invalid request' });
   }
 
   // Honeypot: the hidden "website" field is only ever filled in by bots.
@@ -34,9 +86,9 @@ export default async function handler(req, res) {
     return res.status(200).json({ success: true });
   }
 
-  const name = clean(body.name, 120);
-  const email = clean(body.email, 200);
-  const company = clean(body.company, 200);
+  const name = oneLine(clean(body.name, 120));
+  const email = oneLine(clean(body.email, 200));
+  const company = oneLine(clean(body.company, 200));
   const tasks = clean(body.tasks, 3000);
 
   if (!name || !EMAIL_RE.test(email) || tasks.length < 3) {
@@ -49,7 +101,7 @@ export default async function handler(req, res) {
   const refreshToken = process.env.GOOGLE_REFRESH_TOKEN;
   const spreadsheetId = process.env.GOOGLE_SHEET_ID || '1G0gY4k-T7uo_b76kUZwltCfewK6652zjrBCEA1R93HY';
   const notifyEmail = process.env.LEADS_NOTIFY_EMAIL || 'shahriar.rusan12@gmail.com';
-  const siteOrigin = req.headers.origin || (req.headers.host ? `https://${req.headers.host}` : undefined);
+  const siteOrigin = 'https://axiomsdigital.com';
 
   let sheetUpdated = false;
   let emailSent = false;
@@ -158,14 +210,14 @@ export default async function handler(req, res) {
         Name: name,
         Email: email,
         Company: company || 'Not specified',
-        Tasks_To_Automate: tasks,
+        Tasks_To_Automate: tasks.replace(/[<>]/g, ''),
         Google_Sheet: `https://docs.google.com/spreadsheets/d/${spreadsheetId}/edit`,
         Received_At: receivedAt,
       }),
     });
     const emailData = await emailRes.json().catch(() => ({}));
     emailSent = emailRes.ok && String(emailData.success) !== 'false';
-    if (!emailSent) console.error('FormSubmit failed:', emailRes.status, emailData);
+    if (!emailSent) console.error('FormSubmit failed:', emailRes.status);
   } catch (emailErr) {
     console.error('Email error:', emailErr);
   }

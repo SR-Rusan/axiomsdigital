@@ -1,0 +1,5 @@
+.env
+.env.*
+_archive
+.DS_Store
+dist-ssr

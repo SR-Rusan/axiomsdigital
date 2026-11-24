@@ -11,13 +11,15 @@ const BACKGROUND_VIDEO =
 const shouldPlayBackground = () => {
   if (typeof window === 'undefined') return false;
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return false;
+  if (!window.matchMedia('(min-width: 1024px)').matches) return false;
   const connection = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection;
   return !connection?.saveData;
 };
 
 export const Hero: React.FC = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [showBackground] = useState(shouldPlayBackground);
+  const [showBackground, setShowBackground] = useState(false);
+  useEffect(() => setShowBackground(shouldPlayBackground()), []);
 
   // Play the muted background loop only while the hero is on screen.
   useEffect(() => {
@@ -55,7 +57,7 @@ export const Hero: React.FC = () => {
 
       <div className="relative z-10 flex flex-col items-center w-full max-w-5xl px-4 md:px-6 mx-auto">
         <motion.p
-          initial={{ opacity: 0, y: 12 }}
+          initial={false}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
           className="text-xs font-medium uppercase tracking-[0.16em] text-[#8B6CB8]"
@@ -64,7 +66,7 @@ export const Hero: React.FC = () => {
         </motion.p>
 
         <motion.h1
-          initial={{ opacity: 0, y: 16 }}
+          initial={false}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1 }}
           className="mt-5 text-center font-display text-[2.75rem] sm:text-6xl md:text-7xl lg:text-[5rem] leading-[1.0] sm:leading-[0.95] tracking-tight text-foreground max-w-3xl"
@@ -74,7 +76,7 @@ export const Hero: React.FC = () => {
         </motion.h1>
 
         <motion.p
-          initial={{ opacity: 0, y: 16 }}
+          initial={false}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
           className="mt-4 sm:mt-5 text-center text-base md:text-lg text-muted-foreground max-w-[620px] leading-relaxed px-2"
@@ -83,7 +85,7 @@ export const Hero: React.FC = () => {
         </motion.p>
 
         <motion.div
-          initial={{ opacity: 0, y: 16 }}
+          initial={false}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
           className="mt-6 sm:mt-7 flex flex-wrap items-center justify-center gap-3"
@@ -120,7 +122,7 @@ export const Hero: React.FC = () => {
         </motion.p>
 
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={false}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.5 }}
           className="mt-8 sm:mt-10 w-full max-w-5xl"

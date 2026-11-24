@@ -17,7 +17,7 @@ export const Footer: React.FC = () => {
         <div className="flex flex-col items-center md:items-start gap-3 text-center md:text-left">
           <a href="#home" className="transition-opacity hover:opacity-90">
             <img
-              src="/axioms-digital-horizontal.png"
+              src="/axioms-digital-horizontal.webp"
               alt="Axioms Digital, back to top"
               width={650}
               height={160}

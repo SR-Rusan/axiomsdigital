@@ -65,7 +65,7 @@ export const Navbar: React.FC = () => {
         <a href="#home" className="flex items-center gap-2.5 group transition-opacity hover:opacity-90">
           <span className="relative block h-8 sm:h-9">
             <img
-              src="/axioms-digital-horizontal.png"
+              src="/axioms-digital-horizontal-sm.webp"
               alt="Axioms Digital, home"
               width={650}
               height={160}
@@ -74,8 +74,8 @@ export const Navbar: React.FC = () => {
               }`}
             />
             <img
-              src="/axioms-mark.png"
-              alt=""
+              src="/axioms-mark-sm.webp"
+              alt="Axioms Digital logo mark"
               aria-hidden="true"
               width={302}
               height={280}

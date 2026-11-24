@@ -20,7 +20,7 @@ import {
   Zap,
 } from 'lucide-react';
 
-const greeting = () => {
+const greetingNow = () => {
   const h = new Date().getHours();
   if (h < 12) return 'Good morning';
   if (h < 17) return 'Good afternoon';
@@ -29,6 +29,9 @@ const greeting = () => {
 
 /** Decorative product mock-up. Hidden from screen readers; the copy around it says the same thing. */
 export const AutomationDashboard: React.FC = () => {
+  // Same text on the server and on first paint; switch to the visitor's local greeting after hydration.
+  const [greeting, setGreeting] = React.useState('Good morning');
+  React.useEffect(() => setGreeting(greetingNow()), []);
   return (
     <div
       aria-hidden="true"
@@ -47,8 +50,10 @@ export const AutomationDashboard: React.FC = () => {
           {/* Left: Logo/icon mark + "Axioms Digital" + small chevron */}
           <div className="flex items-center gap-2">
             <img 
-              src="/axioms-mark.png" 
-              alt="Axioms Digital" 
+              src="/axioms-mark-sm.webp"
+              alt="Axioms Digital logo mark"
+              width={20}
+              height={20}
               className="h-5 w-5 object-contain shrink-0"
             />
             <div className="flex flex-col leading-none">
@@ -176,7 +181,7 @@ export const AutomationDashboard: React.FC = () => {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-2">
               <div>
                 <div className="text-xs sm:text-sm md:text-base font-semibold text-foreground tracking-tight">
-                  {greeting()}, team
+                  {greeting}, team
                 </div>
                 <p className="text-[10px] sm:text-[11px] text-muted-foreground">
                   Your automation systems are running smoothly.
